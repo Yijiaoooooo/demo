@@ -1,0 +1,19 @@
+﻿@using Data.Domain.Reservation,
+@model IEnumerable<Reservation>
+
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_layout.cshtml";
+}
+@section script{}
+
+@section body
+{
+    <div id="Summary" class="section panel panel-primary">
+        @Html.Partial("Summary", Model)
+    </div>
+
+}
+
+

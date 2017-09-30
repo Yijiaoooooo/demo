@@ -1,0 +1,301 @@
+﻿
+@{ 
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Reservations";
+    
+}
+
+@section script{
+    <script>
+        
+        var viewModel = function () {
+
+            var self = this;
+
+            this.msg = ko.observable();
+
+            //新建数据
+            this.Editor = {
+                Name: ko.observable("ss"),
+                Location: ko.observable()
+            };
+
+            //分页数据
+            this.model = ko.observableArray();
+
+            //总页数
+            this.pageCount = ko.observable();
+
+            //页码目录
+            this.TotalPages = ko.observableArray();
+
+            //当前页数
+            this.pageIndex = ko.observable(1);
+
+            //获取分页数据
+            this.list = function (i = 1, event) {
+                if (i < 1){
+                    self.pageIndex = 1
+                    i = 1;
+                }
+                if (i > self.pageCount) {
+                    self.pageIndex = self.pageCount;
+                    i = self.pageCount;
+                }
+                self.pageIndex = i;
+                $.ajax({
+                    url: '/api/web',
+                    type: 'get',
+                    data: { pageIndex: i},
+                    beforeSend: function () {
+                        $('.loadEffect').show();
+                    },
+                    success: function (data) {
+                        self.pageCount = data.TotalPages;
+                        self.model.removeAll();
+                        self.TotalPages.removeAll();
+                        for (var i = 0; i < data.model.length; i++) {
+                            self.model.push(data.model[i]);
+                        }
+                        for (var i = 1; i <= data.TotalPages; i++) {
+                            self.TotalPages.push(i);
+                        }
+                        $('.loadEffect').hide();
+                    }
+                })
+            };
+
+            //删除分页项目
+            /*this.removeConfirm = function (item) {
+                $('#aa').text("Are you sure to remove this item?")
+                $('#myModal').modal({
+                    keyboard: true,
+                    show: true
+                });
+                return item;
+            }*/
+            this.remove = function (item) {
+                $.ajax({
+                    url: 'api/web/',
+                    type: 'delete',
+                    contentType: 'application/json',
+                    data: JSON.stringify({Id: item.Id }),
+                    beforeSend: function () {
+                        if (confirm("Are you sure to remove this item")) {
+                            $('.loadEffect').show();
+                        } else {
+                            return false;
+                        }
+                        //self.msg = "Are you sure to remove this item?";  -------------------------------------------------------------why?
+                        
+                    },
+                    success: function (data) {
+                        //self.model.removeAll();
+                        //self.TotalPages.removeAll();
+                        //for (var i = 0; i < data.model.length; i++) {
+                        //    self.model.push(data.model[i]);
+                        //}
+                        //for (var i = 1; i <= data.TotalPages; i++) {
+                        //    self.TotalPages.push(i);
+                        //}
+                        self.list();
+                        $('.loadEffect').hide();
+                    }
+                })
+            };
+
+            //新建分页项目
+            this.Add = function () {
+                $.ajax({
+                    url: 'api/web',
+                    type: 'post',
+                    data: { Name: self.Editor.Name, Location: self.Editor.Location },
+                    beforeSend: function () {
+                        $('.loadEffect').show();
+                    },
+                    success: function () {
+                        self.list();
+                        $('.loadEffect').hide();
+                    }
+                })
+            }
+
+            //更新项目
+
+            this.openUpdateWin = function (item) {
+                $("#Name").val(item.Name);
+                $('#Location').val(item.Location);
+                $('#ID').val(item.Id);
+                $('#updateWin').modal({
+                    keyboard: true,
+                    show: true
+                });
+            }
+
+            this.update = function () {
+                var Name = $("#Name").val();
+                var Location = $('#Location').val();
+                var Id = $("#ID").val();
+                $.ajax({
+                    url: '/api/web',
+                    type: 'put',
+                    data: { Id: Id, Name: Name, Location: Location },
+                    beforeSend: function () {
+                        $('.loadEffect').show();
+                    },
+                    success: function () {
+                        self.list();
+                        $('#updateWin').modal('hide')
+                        $('.loadEffect').hide();
+                        
+                    }
+                })
+
+            }
+
+            //上一页
+            this.previousPage = function () {
+                self.list(self.pageIndex - 1);
+            };
+
+            //下一页
+            this.nextPage = function () {
+                self.list(self.pageIndex + 1);
+            };
+
+            this.comfirm = function () {
+                return true;
+            }
+
+            //页面加载时，获取第一页数据
+            this.list()
+
+            
+
+        }
+
+        var vm = new viewModel();
+        ko.applyBindings(vm);
+
+        //全选
+        $('#checkall').click(function () {
+            console.log($(":checkbox"));
+            if ($(this).attr('checked')) {
+                console.log($(this).attr('checked'));
+                $(':checkbox').attr('checked', true);
+            }
+            else {
+                $(':checkbox]').attr('checked', false);
+            }
+        })
+        console.log($('#checkall').html())
+        
+    </script>
+       
+}
+
+@section body{
+<div id="summary" class="panel panel-primary section" >
+    <div class="panel-heading">Reservations Summary</div>
+    <div class="panel-body">
+        <table class="table table-bordered" id="List">
+            <thead>
+                <tr>
+                    <th class="text-center" id="checkall"><input type="checkbox" ></th>
+                    <th>Name</th>
+                    <th>Location</th>
+                    <th>CreateTime</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody data-bind="foreach: vm.model" id="model">
+                <tr>
+                    <td class="text-center"><input type="checkbox"></td>
+                    <td data-bind="text: Name"></td>
+                    <td data-bind="text: Location"></td>
+                    <td data-bind="text: CreateTime"></td>
+                    <td>
+                        <button class="btn btn-sm btn-warning" data-bind="click: $parent.remove">Remove</button>
+                        <button class="btn btn-sm btn-primary" data-bind="click: $parent.openUpdateWin">Editor</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+    <!--页数导航-->
+    <nav aria-label="Page navigation">
+        <ul class="pagination" style="cursor: pointer">
+            <li>
+                <a href="#" aria-label="Previous" data-bind="click: vm.previousPage">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            <!--ko foreach: vm.TotalPages-->
+           <li id="index"><a data-bind="text: $data, click: vm.list, ad"></a></li>
+            <!-- /ko -->
+           <li>
+               <a href="#" aria-label="Next" data-bind="click: vm.nextPage">
+                   <span aria-hidden="true">&raquo;</span>
+               </a>
+           </li>
+        </ul>
+    </nav>
+
+    <div id="Editor" class="panel panel-primary">
+        <from class="form">
+            <div class="form-group">
+                <label>Name</label>
+                <input class="form-control" data-bind="value: vm.Editor.Name" />
+            </div>
+            <div class="form-group">
+                <label>Location</label>
+                <input class="form-control" data-bind="value: vm.Editor.Location" />
+            </div>
+            <button type="submit" class="btn btn-primary" data-bind="click: vm.Add">Save</button>
+        </from>
+    </div>
+        <!-- Modal -->
+<div class="modal fade" id="updateWin" tabindex="-1" role="dialog" aria-labelledby="updateWin">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Update Item</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <div class="form-group">
+                        <label for="Name" class="col-sm-2 control-label">Name</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="Name" placeholder="Name">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="Location" class="col-sm-2 control-label">Location</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="Location" placeholder="Location">
+                        </div>
+                    </div>
+                    <div class="form-group"  style="display: none">
+                        <label for="ID" class="col-sm-2 control-label">ID</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="ID" placeholder="ID">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" data-bind="click: vm.update">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+}
+
+
+
+
