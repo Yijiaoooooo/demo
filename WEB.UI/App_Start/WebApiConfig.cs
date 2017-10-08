@@ -19,6 +19,14 @@ namespace WEB.UI
                 routeTemplate: "api/{controller}/{id}",
                 defaults: new { id = RouteParameter.Optional }
             );
+
+            
+
+            config.Routes.MapHttpRoute(
+                name: "WithActionApi",
+                routeTemplate: "api/{controller}/{action}/{id}",
+                defaults: new { action = "more", id = RouteParameter.Optional }
+            );
         }
     }
 }

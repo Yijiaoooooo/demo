@@ -10,6 +10,7 @@ using Data.Respository;
 using Newtonsoft.Json.Linq;
 using BLL.ReservationS;
 using Data.ViewModels.Reservation;
+using Data.ViewModels.Query;
 
 namespace WEB.UI.Controllers
 {
@@ -29,10 +30,10 @@ namespace WEB.UI.Controllers
             var model = _reservationRepository.GetById(id);
             return model;
         }
-
-        public JObject GetAllReservations(int pageIndex = 1)
+        
+        public JObject GetAllReservations(int pageIndex = 1, int pageNum = 3)
         {
-            return _reservationService.GetViewModelList(pageIndex);
+            return _reservationService.GetViewModelList(pageIndex, pageNum);
         }
 
         [HttpPost]
@@ -47,9 +48,26 @@ namespace WEB.UI.Controllers
             int id = (int)req.Id;
             _reservationService.DeleteReservation(id);
         }
+        [Route("api/web/more/{id}")]
+        public void DeleteReservations(string[] req)
+        {
+            List<int> ids = new List<int>();
+            foreach (var id in req)
+            {
+                int i = Convert.ToInt32(id);
+                ids.Add(i);
+            }
+            _reservationService.DeleteReservations(ids);
+        }
         public void PutReservation(ReservationViewModel entity)
         {
             _reservationService.UpdateReservation(entity);
+        }
+
+        [Route("api/web/query")]
+        public void Query(queryViewModel req)
+        {
+
         }
     }
 }

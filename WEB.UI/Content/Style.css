@@ -87,3 +87,10 @@
     background: #3388ff;
     color: #fff;
 }
+
+#summary {
+    margin: 20px;
+}
+nav {
+    margin: 10px auto 10px 20px;
+}

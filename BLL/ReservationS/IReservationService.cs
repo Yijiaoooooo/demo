@@ -13,11 +13,13 @@ namespace BLL.ReservationS
     {
         ReservationViewModel GetViewModel(int id);
 
-        JObject GetViewModelList(int pageIndex = 1);
+        JObject GetViewModelList(int pageIndex = 1, int pageNum = 3);
 
         void InsertReservation(Data.Domain.Reservation.Reservation model);
 
         void DeleteReservation(int id);
+
+        void DeleteReservations(List<int> ids);
 
         void UpdateReservation(ReservationViewModel entity);
         
