@@ -56,8 +56,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Admin\AdminService.cs" />
+    <Compile Include="Admin\IAdminService.cs" />
     <Compile Include="BaseService.cs" />
     <Compile Include="Class1.cs" />
+    <Compile Include="List\ILists.cs" />
+    <Compile Include="List\ListService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReservationS\IReservationService.cs" />
     <Compile Include="ReservationS\ReservationService.cs" />

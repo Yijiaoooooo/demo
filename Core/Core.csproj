@@ -45,6 +45,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BusinessException\BusinessException.cs" />
+    <Compile Include="BusinessException\BusinessValidationError.cs" />
     <Compile Include="Class1.cs" />
     <Compile Include="PagedList\IPagedList.cs" />
     <Compile Include="PagedList\PageList.cs" />
@@ -52,7 +54,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Caching\" />
-    <Folder Include="Common\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Data\DAL.csproj">
@@ -62,6 +63,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Common\common.js" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

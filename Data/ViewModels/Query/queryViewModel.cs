@@ -17,5 +17,7 @@ namespace Data.ViewModels.Query
         public DateTime EndDate { get; set; }
 
         public int PageIndex { get; set; }
+
+        public int PageNum { get; set; }
     }
 }

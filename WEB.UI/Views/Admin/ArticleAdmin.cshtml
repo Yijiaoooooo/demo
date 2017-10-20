@@ -1,0 +1,18 @@
+﻿@model Data.Domain.Article.Article
+
+@{ 
+     
+}
+
+@section StyleSheet {}
+
+@section Scripts {
+    <script></script>
+    }
+
+<div class="row">
+    @using (Html.BeginForm( "Editor","Admin", new { @class="Form" }))
+    {
+        @Html.TextBoxFor(c => c.title)
+    }
+</div>

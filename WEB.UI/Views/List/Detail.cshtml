@@ -1,0 +1,203 @@
+﻿@model Data.ViewModels.ArticleDetail.ArticleDetailViewModel
+
+@section Stylesheet{
+    <style>
+        #ADetail {
+            padding: 40px 140px;
+        }
+        .Article {
+            line-height: 2;
+            margin-bottom: 100px;
+        }
+        .Article h1{
+            font-size: 26px;
+            font-weight: 400;
+            color: #555;
+            cursor: pointer;
+            margin-bottom: 8px;
+        }
+        .Article header p {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 60px;
+        }
+        .Article section {
+            line-height: 2;
+            font-size: 16px;
+            color: #555;
+            word-wrap: break-word;
+            overflow: hidden;
+            transition: height 1s;
+        }
+
+        .comment .badge {
+            margin-left: 8px;
+        }
+        .comment .panel-body {
+            padding-left: 0;
+            padding-right: 0;
+        }
+        .comment .commit {
+            margin-top: 20px;
+            margin-bottom: 20px;
+            padding-right: 10px;
+        }
+        .comment .commentEditor {
+            height: 100px;
+        }
+        .comment .commentzz {
+            margin-bottom: 0;
+            font-size: 12px;
+            color: #999;
+            
+        }
+        .comment .commentzz span {
+            cursor: pointer;
+        }
+        .comment .num {
+            margin-left: 4px;
+        }
+    </style>
+    }
+
+@section Scripts{
+    <script>
+        var data = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model));
+        console.log(data);
+
+        var ViewModel = function (d) {
+
+            self = this;
+
+            this.comments = ko.observableArray(d.comments);
+
+            this.UH = ko.observableArray();
+
+            this.UpOrHate = function (item, event) {
+
+                for (var i = 0; i < self.UH().length; i++)
+                {
+                    if (item.id = self.UH()[i])
+                    {
+                        $.Toast("Message", "你老已经发表过意见了", "warning");
+                        return false;
+                    }
+                }
+
+                var num = $(event.target).next().next().text();
+                num = parseInt(num);
+                $(event.target).next().next().text(num + 1);
+                var type = $(event.target).text();
+                if (type === 'U')
+                {
+                    var data = { type: 'U', id: item.Id };
+
+                }
+                if (type === 'D')
+                {
+                    var data = { type: 'D', id: item.Id };
+
+                }
+
+                $.ajax({
+                    url: '@Url.Action("UpOrHate", "List")',
+                    type: 'post',
+                    data: data,
+                    success: function (d) {
+                        d = JSON.parse(d);
+                        if (d.success)
+                        {
+                            $(event.target).css({ 'background': 'red' });
+                            self.UH.push(item.Id);
+                        }
+                    }
+                })
+            }
+        }
+
+        var vm = new ViewModel(data);
+        ko.applyBindings(vm);
+
+        
+    </script>
+        
+    
+    }
+<div class="row" id="ADetail">
+    <div class="Article">
+        <header class="text-center">
+            <h1>@Model.Article.title</h1>
+            <p>
+                <span><i class="glyphicon glyphicon-star" aria-hidden="true"></i> Author：@Model.Article.author</span>
+                <span style="margin: 0 10px"> | </span>
+                <span><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i> Published in @Model.Article.CreateTime</span>
+                <span style="margin: 0 10px"> | </span>
+                <span><i class="glyphicon glyphicon-folder-open" aria-hidden="true"></i> Category Of @Model.Article.CategoryDesc</span>
+            </p>
+        </header>
+        <section class="text-justify content">
+            @Html.Raw(Model.Article.body)
+        </section>
+        <footer>
+
+        </footer>
+    </div>
+    <div class="comment panel panel-primary" style="border: none;">
+        <div class="panel-heading">
+            <span>Comments Input</span>
+        </div>
+        <div class="panel-body">
+            @using (Html.BeginForm("commentUp", "List", new { id = Model.Article.Id }))
+            {
+                <textarea class="form-control commentEditor" name="comment"></textarea>
+                <p class="text-right commit"><button class="btn btn-primary" onsubmit="">Commit</button></p>
+            }
+            
+        </div>
+        <div class="panel-heading">
+            <span>Comments</span><span class="badge">@Model.TotalComment</span>
+        </div>
+        <div class="panel-body">
+            @*<ul class="list-group">
+                @if (Model.comments.Count > 0)
+                {
+                    foreach (var item in Model.comments)
+                    {
+                        <li class="list-group-item">
+                            <p>@item.content</p>
+                            <p style="margin-bottom: 0" class="commentzz text-right">
+                                <span>DateTime: @item.CreateTime</span>
+                                <span class="badge" data-bind="click: vm.UpOrHate">U</span><span class="num" data-bind="text: vm.like">(@item.Like)</span>
+                                <span class="badge" data-bind="click: vm.UpOrHate">D</span><span class="num" data-bind="text: vm.hate">(@item.Hate)</span>
+                            </p>
+                        </li>
+                    }
+                }
+            </ul>*@
+            @if (Model.comments.Count > 0)
+            {
+                <ul class="list-group" data-bind="foreach: vm.comments">
+                    <li class="list-group-item">
+                        <p data-bind="text: content" style="word-wrap:break-word; word-break: break-all;"></p>
+                        <div class="row">
+                            <p class="commentzz text-left col-xs-9" style="padding-left: 296px;">
+                                <span>DateTime: </span><span data-bind="text: CreateTime"></span>
+                            </p>
+                            <p class="commentzz text-left col-xs-3" style="padding-left: 0; padding-right: 0;">
+                                <span class="badge" data-bind="click: vm.UpOrHate">U</span>
+                                <span>（</span><span class="num" data-bind="text: Like"></span><span>）</span>
+                                <span class="badge" data-bind="click: vm.UpOrHate">D</span>
+                                <span>（</span><span class="num" data-bind="text: Hate"></span><span>）</span>
+                            </p>
+                        </div>
+                    </li>
+                </ul>
+            }
+            else
+            {
+                <p> no no no no no no no no no no no </p>
+            }
+        </div>
+        
+    </div>
+</div>

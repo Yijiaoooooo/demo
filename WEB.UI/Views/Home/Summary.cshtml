@@ -1,13 +1,11 @@
-﻿
-@{ 
-    Layout = "~/Views/Shared/_Layout.cshtml";
+﻿@{ 
     ViewBag.Title = "Reservations";
-    
 }
 
-@section script{
+
+@section Scripts {
     <script>
-        
+
         var viewModel = function () {
 
             var self = this;
@@ -17,7 +15,7 @@
             //搜索参数
             this.search = {
                 Name: ko.observable(""),
-                Location: ko.observable(),
+                Location: ko.observable(""),
                 startDate: ko.observable(),
                 endDate: ko.observable()
             };
@@ -63,7 +61,7 @@
                     i = self.pageCount;
                 }
                 self.pageIndex = i;
-                j = self.Num(); 
+                j = self.Num();
 
                 if (self.IsQuery) {
                     var url = '/api/web/query';
@@ -76,7 +74,8 @@
                         Location: self.search.Location,
                         StartDate: startDate,
                         EndDate: endDate,
-                        PageIndex: i
+                        PageIndex: i,
+                        PageNum: j
                     };
 
                     var type = 'post';
@@ -107,7 +106,7 @@
                         }
                         $('.loadEffect').hide();
                         $('#checkall').prop('checked', false);
-                    }                 
+                    }
                 })
             };
 
@@ -126,7 +125,7 @@
                     url: 'api/web/DeleteReservation',
                     type: 'delete',
                     contentType: 'application/json',
-                    data: JSON.stringify({Id: item.Id }),
+                    data: JSON.stringify({ Id: item.Id }),
                     beforeSend: function () {
                         if (confirm("Are you sure to remove this item")) {
                             $('.loadEffect').show();
@@ -134,7 +133,7 @@
                             return false;
                         }
                         //self.msg = "Are you sure to remove this item?";  -------------------------------------------------------------why?
-                        
+
                     },
                     success: function (data) {
                         self.list();
@@ -217,7 +216,7 @@
                         self.list();
                         $('#updateWin').modal('hide')
                         $('.loadEffect').hide();
-                        
+
                     }
                 })
 
@@ -298,13 +297,14 @@
             toolbarPlacement: 'top',
             stepping: 15
         })
-       
-        
-    </script>
-       
-}
 
-@section body{
+
+</script>
+
+}
+    
+       
+
 <div id="summary" class="panel panel-primary section" >
     <div class="panel-heading">Reservations Summary</div>
     <div class="panel-body">
@@ -364,8 +364,8 @@
                     <td data-bind="text: Location"></td>
                     <td data-bind="text: CreateTime"></td>
                     <td>
-                        <button class="btn btn-sm btn-warning" data-bind="click: $parent.remove">Remove</button>
-                        <button class="btn btn-sm btn-primary" data-bind="click: $parent.openUpdateWin">Editor</button>
+                        <button class="btn btn-xs btn-warning" data-bind="click: $parent.remove">Remove</button>
+                        <button class="btn btn-xs btn-primary" data-bind="click: $parent.openUpdateWin">Editor</button>
                     </td>
                 </tr>
             </tbody>
@@ -374,7 +374,7 @@
 </div>
 
     <!--页数导航-->
-    <nav aria-label="Page navigation">
+    <nav aria-label="Page navigation" style="margin-left: 20px;">
         <ul class="pagination" style="cursor: pointer;">
             <li>
                 <a href="#" aria-label="Previous" data-bind="click: vm.previousPage">
@@ -406,7 +406,7 @@
         </ul>
     </nav>
 
-    <div id="Editor" class="panel panel-primary">
+    <div id="Editor" class="panel panel-primary" style="margin-left: 20px;">
         <from class="form">
             <div class="form-group">
                 <label>Name</label>
@@ -488,7 +488,7 @@
     </div>
 </div>
 
-}
+
 
 
 

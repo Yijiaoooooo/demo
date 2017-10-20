@@ -1,0 +1,748 @@
+﻿@using Data.ViewModels.AdminViewModel
+@model AdminViewModel
+
+
+@section StyleSheet {
+    <style>
+        #admin {
+            background: #fff;
+        }
+        #cateSelect {
+            width: 94px;
+            height: 30px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding-left: 8px;
+            font-size: 12px;
+        }
+
+    </style>
+    }
+
+@section Scripts{
+    <script type="text/javascript">
+
+        var data = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model));
+        console.log(data)
+
+        var viewModel = function (data) {
+            var self = this;
+
+            // category列表数据
+            this.Categorys = ko.observableArray();
+
+            this.modal = {
+                title: ko.observable(),
+            }
+
+            // 添加category数据
+            this.newCategory = ko.observable();
+
+            this.AllCate = ko.observableArray();
+
+            //category列表页数
+            this.catePages = ko.observableArray();
+
+            //category列表当前页码
+            this.cateIndex = ko.observable(1);
+
+            //category列表条数
+            this.cateSize = ko.observable();
+
+            //article列表页数
+            this.ArticlePages = ko.observableArray();
+
+            //article列表当前页码
+            this.ArticleIndex = ko.observable(1);
+
+            //article列表条数
+            this.ArticleSize = ko.observable();
+
+            //article列表数据
+            this.Articles = ko.observableArray();
+
+            //articley列表选择的行ID
+            this.CateCheckId = ko.observableArray();
+
+            //category列表选择的行ID
+            this.ArticleCheckId = ko.observableArray();
+
+            this.CateEditor = {
+                desc: ko.observable(),
+                id: ko.observable()
+            }
+
+            this.ArticleSearch = {
+                title: ko.observable(),
+                author: ko.observable(),
+                startDate: ko.observable(),
+                endDate: ko.observable(),
+                categoryId: ko.observable()
+            }
+
+            this.IsQuery = false;
+
+            //初始化所有列表
+            this.Init = function () {
+
+                self.Categorys(data.Categorys);
+
+                self.Articles(data.Articles);
+
+                self.AllCate(data.AllCate);
+
+                self.AllCate.unshift({ Id: 0, desc: 'Category' });
+
+                for (var i = 0; i < data.CategoryPages; i++) {
+                    self.catePages().push(i + 1)
+                }
+
+                for (var i = 0; i < data.ArticlePages; i++) {
+                    self.ArticlePages.push(i + 1)
+                }
+            }
+
+            //获取category
+            this.GetCate = function (item) {
+                if (typeof item === 'number')
+                {
+                    self.cateIndex(item);
+                }
+
+                $.ajax({
+                    url: '/Admin/Getcategory',
+                    type: 'get',
+                    contentType: 'application/json',
+                    data: { pageIndex: self.cateIndex(), pageSize: self.cateSize() },
+                    beforeSend: function () { },
+                    success: function (d) {
+                        var a = JSON.parse(d);
+
+                        if (a.success) {
+                            self.Categorys(a.model)
+
+                            self.catePages.removeAll();
+
+                            for (var i = 0; i < a.TotalPages; i++) {
+                                self.catePages.push(i + 1)
+                            }
+                        }
+                        else {
+                            $.Toast("Message", "Category 获取失败，程序错误", "error");
+                        }
+
+
+                    }
+                })
+            }
+
+            //获取article
+            this.GetArticle = function (item) {
+
+                if (typeof item === 'number') {
+                    self.ArticleIndex(item);
+                }
+
+                if (self.IsQuery) {
+                    var startDate = $('#searchStartDate').val();
+                    var endDate = $('#searchEndDate').val();
+
+                    var url = '@Url.Action("ArticleSearch", "Admin")';
+                    var data = {
+                        title: self.ArticleSearch.title(),
+                        author: self.ArticleSearch.author(),
+                        categoryId: self.ArticleSearch.categoryId(),
+                        startDate: startDate,
+                        endDate: endDate
+                    }
+                }
+                else {
+                    var url = '/Admin/GetArticle';
+                    data = { pageIndex: self.ArticleIndex(), pageSize: self.ArticleSize() };
+                }
+
+                $.ajax({
+                    url: url,
+                    type: 'get',
+                    contentType: 'application/json',
+                    data: data,
+                    beforeSend: function () { },
+                    success: function (d) {
+                        var a = JSON.parse(d);
+
+                        if (a.success) {
+                            self.Articles.removeAll();
+
+                            self.Articles(a.model)
+
+                            self.ArticlePages.removeAll();
+
+                            for (var i = 0; i < a.TotalPages; i++) {
+                                self.ArticlePages.push(i + 1)
+                            }
+                        }
+                        else {
+                            $.Toast("Message", "Article 获取失败，程序错误", "error");
+                        }
+
+
+                    }
+                })
+            }
+
+            //Add Category
+            this.CreateCategory = function () {
+                $('#cate').modal({
+                    keyboard: true,
+                    show: true
+                });
+                self.modal.title("Create Category")
+            }
+
+            this.AddCategory = function () {
+                console.log(self.newCategory())
+                $.ajax({
+                    url: '@Url.Action("AddCategory", "Admin")',
+                    type: 'post',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ desc: self.newCategory() }),
+                    beforeSend: function () {
+
+                    },
+                    success: function (d) {
+                        var a = JSON.parse(d);
+
+                        if (a.success) {
+                            self.Categorys(a.model)
+
+                            self.catePages.removeAll();
+
+                            for (var i = 0; i < a.TotalPages; i++) {
+                                self.catePages.push(i + 1)
+                            }
+
+                            $('#cate').modal('hide');
+                            $.Toast("Message", "Category 添加成功", "success");
+                        }
+                        else {
+                            $.Toast("Message", "Category 添加失败", "error");
+                        }
+                    },
+                    complete: function () {
+
+
+                    }
+
+                })
+            }
+
+            //新建或编辑Article重新页面加载
+            this.ArticleEditor = function (item) {
+
+                //window.location.href = "/Admin/ArticleEditor/idx=" + item.Id;
+                console.log(window.location.href + "/ArticleEditor/id=" + item.Id);
+                var url = window.location.href + "/ArticleEditor/?id=" + item.Id;
+                window.location.href = '';
+                window.location.href = url;
+            }
+
+            //
+            this.remove = function (item, event) {
+                console.log(item.Id)
+                var entity = '';
+                var successfun = null;
+
+                switch (true) {
+                    case item.author !== undefined:
+                        entity = 'Article';
+                        successfun = self.GetArticle;
+                        break;
+                    case item.desc !== undefined:
+                        entity = 'Category';
+                        successfun = self.GetCate;
+                        break;
+                }
+
+                $.ajax({
+                    url: '/Admin/DeleteEntity',
+                    type: 'delete',
+                    data: { id: item.Id, entity: entity },
+                    beforeSend: function () {
+                        if(!confirm("删除该项？"))
+                        {
+                            return false;
+                        }
+                    },
+                    success: function (d)
+                    {
+                        console.log(d);
+                        var a = JSON.parse(d);
+                        if (a.success) {
+                            console.log(successfun)
+                            successfun();
+                            $.Toast("Message", "删除成功", "success");
+                        }
+                        else
+                        {
+                            $.Toast("Message", "删除失败", "error");
+                        }
+                    },
+                    complete: function () {
+
+                    }
+                })
+                console.log(entity);
+            }
+
+            this.removeChecked = function (item, event) {
+                var ID = event.target.id;
+                var data = null;
+                var entity = null;
+                var successfun = null;
+
+                switch (ID) {
+                    case 'DC':
+                        data = self.CateCheckId();
+                        entity = 'Category';
+                        successfun = self.GetCate;
+                        break;
+                    case 'DA':
+                        data = self.ArticleCheckId();
+                        entity = 'Article';
+                        successfun = self.GetArticle;
+                        break;
+                }
+                $.ajax({
+                    url: '@Url.Action("DeleteChecked", "Admin")',
+                    type: 'delete',
+                    data: { ids: data, entityType: entity },
+                    beforeSend: function () {
+                        if (!confirm("删除所选项？")) {
+                            return false;
+                        }
+                    },
+                    success: function (d) {
+                        var a = JSON.parse(d);
+                        if (a.success) {
+                            console.log(successfun);
+                            successfun();
+                            $.Toast("Message", "删除成功", "success");
+                        }
+                        else {
+                            $.Toast("Message", "删除失败", "error");
+                        }
+                    },
+                    complete: function () {
+
+                    }
+                })
+            }
+
+            this.openUpdateCate = function (item) {
+                $('#cateEditor').modal({
+                    keyboard: true,
+                    show: true
+                });
+                self.CateEditor.desc(item.desc);
+                self.CateEditor.id(item.Id);
+
+            }
+            this.updateCate = function (item) {
+                $.ajax({
+                    url: "@Url.Action("UpdateCategory", "Admin")",
+                    type: 'put',
+                    data: { Id: self.CateEditor.id, desc: self.CateEditor.desc },
+                    success: function (d) {
+                        var a = JSON.parse(d);
+                        if (a.success) {
+                            success();
+                            $('#cateEditor').modal('hide');
+                            self.GetCate();
+                            $.Toast("Message", "Category 更新成功", "success");
+                        }
+                        else {
+                            $.Toast("Message", "Category 更新失败", "success");
+                        }
+                    },
+                    complete: function () {
+
+                    }
+
+                })
+            }
+
+            //上一页
+            this.prePage = function (item, event) {
+                var id = event.target.id === '' ? event.target.parentNode.id : event.target.id;
+
+                var fun = null;
+
+                switch (id) {
+                    case 'PCate':
+                        fun = self.GetCate;
+                        index = self.cateIndex;
+                        break;
+                    case 'PArticle':
+                        fun = self.GetArticle;
+                        index = self.ArticleIndex;
+                        console.log(index())
+                        break;
+                }
+                if (index() === 1) {
+                    index(1);
+                    $.Toast("message", "This is thie first page", "warning");
+                }
+                else {
+                    index(index() - 1);
+                }
+                fun();
+            }
+
+            //下一页
+            this.nextPage = function (item, event) {
+                var id = event.target.id === '' ? event.target.parentNode.id : event.target.id;
+
+                var fun = null;
+
+                switch (id) {
+                    case 'NCate':
+                        fun = self.GetCate;
+                        index = self.cateIndex;
+                        max = self.catePages().length;
+                        break;
+                    case 'NArticle':
+                        fun = self.GetArticle;
+                        index = self.ArticleIndex;
+                        max = self.ArticlePages().length;
+                        break;
+                }
+                if (index() === max) {
+                    index(max);
+                    $.Toast("message", "This is thie last page", "warning");
+                }
+                else {
+                    index(index() + 1)
+                }
+                fun();
+            }
+
+            this.ArticleQuery = function () {
+                self.IsQuery = true;
+                self.GetArticle();
+            }
+
+            this.Init();
+        }
+
+        vm = new viewModel(data);
+        ko.applyBindings(vm);
+
+        //全选
+        $('.checkAll').click(function () {
+            if ($(this).is(':checked')) {
+                $('#Category :checkbox').prop('checked', true);
+                vm.CateCheckId().splice(0, vm.CateCheckId().length);
+                for (var i = 0; i < vm.Categorys().length; i++) {
+                    vm.CateCheckId().push(vm.Categorys()[i].Id);
+                }
+            }
+            else {
+                $('#Category :checkbox').prop('checked', false);
+                vm.CateCheckId().splice(0, vm.CateCheckId().length);
+            }
+        })
+
+        CheckAll('.checkAllA', '#Article');
+
+        //全选
+        var CheckAll = function (checkbtn, root) {
+            $(checkbtn).click(function () {
+                if ($(this).is(':checked')) {
+                    $(root + ' :checkbox').prop('checked', true);
+                }
+                else {
+                    $(root + ' :checkbox').prop('checked', false);
+                }
+            })
+            console.log('a');
+        }
+        $('.test').click(function () {
+            $.Toast("test", "this is a test message.", "error", {
+                stack: false,
+                position_class: "toast-bottom-left",
+                has_icon: true,
+                has_close_btn: true,
+                fullscreen: false,
+                timeout: 2000,
+                sticky: false,
+                has_progress: true,
+                rtl: false,
+            });
+        })
+
+        $('#searchStartDate').datetimepicker({
+            format: 'YYYY-MM-DD hh:mm',
+            locale: moment.locale('zh-cn'),
+            showClose: true,
+            showClear: true,
+            toolbarPlacement: 'top',
+            stepping: 15
+        })
+        $('#searchEndDate').datetimepicker({
+            format: 'YYYY-MM-DD hh:mm',
+            locale: moment.locale('zh-cn'),
+            showClose: true,
+            showClear: true,
+            toolbarPlacement: 'top',
+            stepping: 15
+        })
+        $("select option:first-child").css({ 'display': 'none' });
+    </script>
+    <script src="https://cdn.ckeditor.com/4.7.3/standard/ckeditor.js"></script>
+    <script src="~/Content/ckeditor/ckeditor.js"></script>
+    }
+
+<div class="row" id="admin">
+    <div class="panel panel-primary" id="Category">
+        <div class="panel-heading">
+            Category
+        </div>
+        <div class="panel-body">
+            <div class="btn-toolbar" style="margin-bottom: 10px;">
+                <div class="btn-group">
+                    <button class="btn btn-primary btn-sm" style="padding: 2px 8px;" data-bind="click: vm.CreateCategory">Create</button>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-primary btn-sm" style="padding: 2px 8px;" data-bind="click: vm.removeChecked" id="DC">Delete</button>
+                </div>
+            </div>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" class="checkAll" /></th>
+                            <th>Category</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody data-bind="foreach: vm.Categorys">
+                        <tr>
+                            <td><input type="checkbox" data-bind="checked: vm.CateCheckId, value: $data.Id" /></td>
+                            <td data-bind="text: desc"></td>
+                            <td>
+                                <button class="btn btn-xs btn-warning" data-bind="click: $parent.remove">Remove</button>
+                                <button class="btn btn-xs btn-primary" data-bind="click: $parent.openUpdateCate">Editor</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table> 
+        </div>
+        <nav aria-label="Page navigation" style="margin-left: 20px;">
+            <ul class="pagination" style="cursor: pointer;">
+                <li>
+                    <a href="#" aria-label="Previous" data-bind="click: vm.prePage" id="PCate">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                <!--ko foreach: vm.catePages-->
+                <li id="index"><a data-bind="text: $data, click: vm.GetCate"></a></li>
+                <!-- /ko -->
+                <li>
+                    <a href="#" aria-label="Next" data-bind="click: vm.nextPage" id="NCate">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                <li id="index">
+                    <a>
+                        显示条数：
+                        <input type="text" style="height: 20px;width: 46px;border: 1px solid #eee;border-radius: 2px;" data-bind="value: vm.cateSize" />
+                    </a>
+                </li>
+                <li><a data-bind="click: vm.GetCate">确定</a></li>
+                <li id="index">
+                    <a>
+                        页数：
+                        <input type="text" style="height: 20px;width: 46px;border: 1px solid #eee;border-radius: 2px;" data-bind="value: vm.cateIndex" />
+                    </a>
+                </li>
+                <li><a data-bind="click: vm.GetCate">跳转</a></li>
+            </ul>
+        </nav>
+    </div>
+    <div class="panel panel-primary" id="Article">
+        <div class="panel-heading">
+            Article Summary
+        </div>
+        <div class="panel-body">
+            <div class="btn-toolbar" style="margin-bottom: 10px;">
+                <div class="btn-group">
+                    <a href="@Url.Action("ArticleEditor", "Admin", new { id = 0 })"><button class="btn btn-primary btn-sm" style="padding: 2px 8px;" data-bind="">Create</button></a>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-primary btn-sm" style="padding: 2px 8px;" data-bind="click: removeChecked" id="DA">Delete</button>
+                </div>
+            </div>
+            <form class="form-horizontal panel panel-default" style="padding: 15px 20px;">
+                <div class="row">
+                    <div class="col-xs-5">
+                        <div class="form-group form-group-sm">
+                            <label for="title" class="col-xs-3 control-label">Title：</label>
+                            <div class="col-xs-9" style="padding-left:0; padding-right: 0;">
+                                <input type="text" class="form-control" name="title" placeholder="Title" data-bind="value: vm.ArticleSearch.title"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-5">
+                        <div class="form-group form-group-sm">
+                            <label for="author" class="col-xs-3 control-label">Author：</label>
+                            <div class="col-xs-9" style="padding-left:0; padding-right: 0;">
+                                <input type="text" class="form-control col-xs-10" name="author" placeholder="Author" data-bind="value: vm.ArticleSearch.author" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dropdown form-group form-group-sm col-xs-2" style="padding: 0 44px;">
+                        <select data-bind="options: vm.AllCate, optionsValue: 'Id', optionsText: 'desc', value: vm.ArticleSearch.categoryId" id="cateSelect"></select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-5">
+                        <div class="form-group form-group-sm">
+                            <label for="searchStartDate" class="control-label col-xs-3">开始时间：</label>
+                            <div class="input-group date col-xs-9">
+                                <input type="text" id="searchStartDate" class="form-control" name="searchStartDate" data-bind="value: vm.ArticleSearch.startDate" />
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-5">
+                        <div class="form-group form-group-sm">
+                            <label for="searchEndDate" class="control-label col-xs-3">结束时间：</label>
+                            <div class="input-group date col-xs-9">
+                                <input type="text" id="searchEndDate" class="form-control" name="searchEndDate" data-bind="value: vm.ArticleSearch.endDate" />
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-2">
+                        <button class="btn btn-primary" style="margin-left: 16px; padding: 4px 24px;" data-bind="click: vm.ArticleQuery">
+                            <span class="glyphicon glyphicon-search" aria-hidden="true"></span>查询
+                        </button>
+                    </div>
+                </div>
+            </form>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" class="checkAllA" /></th>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th>CreateTime</th>
+                        <th>Category</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody data-bind="foreach: vm.Articles">
+                    <tr>
+                        <td><input type="checkbox" data-bind="checked: vm.ArticleCheckId, value: $data.Id"  /></td>
+                        <td data-bind="text: title"></td>
+                        <td data-bind="text: author"></td>
+                        <td data-bind="text: CreateTime"></td>
+                        <td data-bind="text: CategoryDesc"></td>
+                        <td>
+                            <button class="btn btn-xs btn-warning" data-bind="click: $parent.remove">
+                            Remove
+                            </button>
+                            <button class="btn btn-xs btn-primary" data-bind="click: vm.ArticleEditor">Editor</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <nav aria-label="Page navigation" style="margin-left: 20px;">
+            <ul class="pagination" style="cursor: pointer;">
+                <li>
+                    <a href="#" aria-label="Previous" data-bind="click: vm.prePage" id="PArticle">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                <!--ko foreach: vm.ArticlePages-->
+                <li id="index"><a data-bind="text: $data, click: vm.GetArticle"></a></li>
+                <!-- /ko -->
+                <li>
+                    <a href="#" aria-label="Next" data-bind="click: vm.nextPage" id="NArticle">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                <li id="index">
+                    <a>
+                        显示条数：
+                        <input type="text" style="height: 20px;width: 46px;border: 1px solid #eee;border-radius: 2px;" data-bind="value: vm.ArticleSize" />
+                    </a>
+                </li>
+                <li><a data-bind="click: vm.GetArticle">确定</a></li>
+                <li id="index">
+                    <a>
+                        页数：
+                        <input type="text" style="height: 20px;width: 46px;border: 1px solid #eee;border-radius: 2px;" data-bind="value: vm.ArticleIndex" />
+                    </a>
+                </li>
+                <li><a data-bind="click: vm.GetArticle">跳转</a></li>
+            </ul>
+        </nav>
+        
+    </div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="updateWin" id="cate">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel" data-bind="text: vm.modal.title"></h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <div class="form-group">
+                        <label for="Location" class="col-sm-3 control-label">Category-Desc</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="Location" placeholder="Description" data-bind="value: newCategory" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" data-bind="click: vm.AddCategory">Add Category</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="updateWin" id="cateEditor">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel" data-bind="text: vm.modal.title"></h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <div class="form-group">
+                        <label for="Location" class="col-sm-3 control-label">Category-Editor</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="Location" placeholder="Description" data-bind="value: CateEditor.desc" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" data-bind="click: vm.updateCate">Update Category</button>
+            </div>
+        </div>
+    </div>
+</div>
+<button class="test">aaa</button>

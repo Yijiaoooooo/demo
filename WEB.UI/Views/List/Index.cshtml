@@ -1,0 +1,144 @@
+﻿@using Data.Domain.Article
+@model IEnumerable<Article>
+
+@section StyleSheet {
+  <style>
+      #list {
+        font-family: 'Lato', "PingFang SC", "Microsoft YaHei", sans-serif;
+        background: #fff;
+        margin-left: 20px;
+      }
+      .list-item {
+          padding: 40px 0;
+      }
+      .list-item a {
+          display: inline-block;
+          position: relative;
+          font-size: 26px;
+          font-weight: 400;
+          color: #555;
+          cursor: pointer;
+          margin-bottom: 8px;
+      }
+      .list-item a::after {
+          content: '';
+          width: 0;
+          position: absolute;
+          left: 50%;
+          bottom: 0;
+          height: 2px;
+          visibility:hidden;
+          background: #000;
+          transition: all 0.25s;
+      }
+      .list-item a:hover::after{
+          width: 100%;
+          left: 0;
+          visibility:visible;
+          
+      }
+      .list-item header p {
+          font-size: 12px;
+          color: #999;
+          margin-bottom: 60px;
+      }
+      .list-item i {
+          margin-right: 4px;
+      }
+      .list-item > section {
+          line-height: 2;
+          padding: 0 100px;
+          font-size: 16px;
+          color: #555;
+          word-wrap: break-word;
+          overflow: hidden;
+          transition: height 1s;
+
+      }
+      .list-item footer {
+          position: relative;
+          margin-top: 30px;
+      }
+      .list-item footer::after {
+          content: '';
+          position: absolute;
+          bottom: -14px;
+          left: 50%;
+          margin-left: -70px;
+          height: 1px;
+          width: 140px;
+          background: #999;
+      }
+      .list-item .seeAll {
+          display: block;
+          width: 100px;
+          height: 40px;
+          margin: 10px auto;
+
+      }
+  </style>
+}
+
+@section Scripts {
+    <script>
+        $(function () {
+
+            $('.content').each(function (i) {
+                console.log($(this).height());
+                if ($(this).height() > 300) {
+                    $(this).height(300);
+                    $(this).next('footer').append("<button class='btn btn-default seeAll'>阅读全文</button>");
+                }
+            })
+
+            
+        })
+        //$('.seeAll').click(function () {
+        //    var height = $(this).parent().prev().height();
+        //    if(height == '300'){
+        //        $(this).parent().prev().css({ 'height': 'auto' });
+        //        $(this).text("收起阅读")
+        //    } else {
+        //        $(this).parent().prev().css({ 'height': '300px' });
+        //        $(this).text("阅读更多")
+        //    }
+        //    console.log($(this).parent().prev())
+            
+        //})
+        $('footer').on('click', '.seeAll', function () {
+            var height = $(this).parent().prev().height();
+            if (height == '300') {
+                $(this).parent().prev().css({ 'height': 'auto' });
+                $(this).text("收起阅读")
+            } else {
+                $(this).parent().prev().css({ 'height': '300px' });
+                $(this).text("阅读更多")
+            }
+            console.log($(this).parent().prev())
+        })
+    </script>
+}
+
+<div class="row" id="list">
+  @foreach (var item in Model)
+  {
+      <div class="list-item">
+          <header class="text-center">
+              @Html.ActionLink(item.title, "Detail", "List", new { id = item.Id }, null)
+              <p>
+                  <span><i class="fa fa-camera-retro"></i>Author：@item.author</span>
+                  <span style="margin: 0 10px"> | </span>
+                  <span><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i> Published in @item.CreateTime</span>
+                  <span style="margin: 0 10px"> | </span>
+                  <span><i class="glyphicon glyphicon-folder-open" aria-hidden="true"></i> Category Of @item.CategoryDesc</span>
+              </p>
+          </header>
+          <section class="text-justify content">
+              @Html.Raw(item.body)
+          </section>
+          <footer>
+              @*<button class='btn btn-default seeAll'>阅读全文</button>*@
+          </footer>
+      </div>
+  }
+</div>

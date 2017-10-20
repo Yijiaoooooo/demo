@@ -129,7 +129,7 @@ namespace Core.PagedList
         {
             get { return (PageIndex + 1 < TotalPages); }
         }
-        public JObject ToViewList()
+        public JObject ToViewList(bool success = true)
         {
             var a = typeof(T);
             if (this == null)
@@ -143,6 +143,7 @@ namespace Core.PagedList
             JArray model = JArray.FromObject(this.ToList());
 
             list.Add("model", model);
+            list.Add("success", success);
             return list;
         }
     }

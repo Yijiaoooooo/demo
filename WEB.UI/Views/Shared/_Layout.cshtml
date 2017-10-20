@@ -7,16 +7,112 @@
     <link href="~/Content/bootstrap.min.css" rel="stylesheet" type="text/css" />
     <link href="~/Content/style.css" rel="stylesheet" type="text/css" />
     <link href="~/Content/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css" />
-    <script src="~/Scripts/jquery-1.9.1.min.js"></script>
-    <script src="~/Scripts/bootstrap.min.js"></script>
-    <script src="~/Scripts/knockout-3.4.2.js"></script>
-    <script src="~/Scripts/moment.min.js"></script>
-    <script src="~/Scripts/moment-with-locales.min.js"></script>
-    <script src="~/Scripts/bootstrap-datetimepicker.min.js"></script>
+    <link href="~/Content/jqueryToast/css/toast.style.css" type="text/css" rel="stylesheet"/>
+    <link href="~/Content/font-awesome.min.css" type="text/css" rel="stylesheet"/>
+
+
+    <!-- 加载页面的CSS -->
+    @RenderSection("StyleSheet", required: false)
+    <style>
+        body {
+            background: #f5f7f9;
+            font-family: 'Lato', "PingFang SC", "Microsoft YaHei", sans-serif;
+        }
+
+        #content {
+            background: #fff;
+            margin-top: 20px;
+        }
+        .n {
+            position: absolute;
+            top: 20px;
+            left: 236px;
+            height: 600px;
+            width: 220px;
+            border-radius: 2px;
+            margin-right: 20px;
+            background: #fff;
+        }
+        .n > ul {
+            padding: 0;
+        }
+        .n > ul > li {
+            width: 100%;
+            list-style: none;
+            text-align: left;
+        }
+        .n > ul > li > a {
+            display: inline-block;
+            width: 100%;
+            border-radius: 2px;
+            padding: 13px 20px;
+            color: #337ab7;
+        }
+        .n > ul > li > a:hover {
+            text-decoration: none;
+        }
+        a:visited {
+            text-decoration: none !important;
+        }
+        a:hover {
+            text-decoration: none !important;
+        }
+        .logo {
+            background: #337ab7;
+            padding: 40px 0;
+        }
+        .logo > a {
+            color: #fff;
+            cursor: pointer;
+        }
+        .logo h4 {
+            padding: 0  0 20px 0;
+        }
+        .n span {
+          margin-right: 6px;
+        }
+    </style>
 </head>
 <body>
+
+    <div class="container">
+        <div class="row">
+            <div class="n">
+                <div class="logo text-center">
+                    <a><h4>A Pig Under The Moon</h4></a>
+                    <a><span>YiJiaoooooo</span></a>
+                </div>
+                <ul>
+                    <li role="presentation">
+                        <a href="@Url.Action("Index", "List")">
+                            <span class="glyphicon glyphicon-equalizer" aria-hidden="true"></span> Home
+                        </a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#">
+                            <span class="glyphicon glyphicon-align-left" aria-hidden="true"></span> Category
+                        </a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#">
+                            <span class="glyphicon glyphicon-pushpin" aria-hidden="true"></span> Category
+                        </a>
+                    </li>
+                    <li role="presentation">
+                        <a href="@Url.Action("Index", "Admin")">
+                            <span class="glyphicon glyphicon-leaf" aria-hidden="true"></span> Admin
+                        </a>
+                    </li>
+                </ul>
+
+            </div>
+            <main class="col-xs-10 col-xs-offset-1" id="content">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
     
-    @RenderSection("body")
+    <!-- 加载 -->
     <div class="loadEffect">
         <span></span>
         <span></span>
@@ -27,9 +123,19 @@
         <span></span>
         <span></span>
     </div>
-
-
-    @RenderSection("script")
     
+    
+    <script src="~/Scripts/jquery-1.9.1.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/knockout-3.4.2.js"></script>
+    <script src="~/Scripts/moment.min.js"></script>
+    <script src="~/Scripts/moment-with-locales.min.js"></script>
+    <script src="~/Scripts/bootstrap-datetimepicker.min.js"></script>
+    <script src="https://cdn.ckeditor.com/4.7.3/standard/ckeditor.js"></script>
+    <script src="~/Content/jqueryToast/js/toast.script.js"></script>
+    <script src="~/Scripts/common.js"></script>
+
+    <!-- 加载页面的JS -->
+    @RenderSection("Scripts", required: false)
 </body>
 </html>

@@ -43,7 +43,7 @@ namespace BLL.ReservationS
         }
 
         public ReservationViewModel GetViewModel(int id)
-        { 
+        {
             var item = _ReservationsRep.Table.FirstOrDefault(c => c.Id == id);
             var model = new ReservationViewModel();
 
@@ -56,7 +56,7 @@ namespace BLL.ReservationS
             return model;
         }
 
-        public JObject GetViewModelList (int pageIndex = 1, int pageNum = 3)
+        public JObject GetViewModelList(int pageIndex = 1, int pageNum = 3)
         {
             var source = _ReservationsRep.Table;
             List<ReservationViewModel> model = new List<ReservationViewModel>();
@@ -93,15 +93,75 @@ namespace BLL.ReservationS
         }
 
         //查询
-        public void QueryReservation(queryViewModel query)
+        public JObject QueryReservation(queryViewModel query)
         {
-            SqlParameter Qname = new SqlParameter("Name", query.Name);
-            SqlParameter Qlocation = new SqlParameter("Location", query.Location);
-            SqlParameter QstartDate = new SqlParameter("StartDate", query.StartDate);
-            SqlParameter QendDate = new SqlParameter("EndDate", query.EndDate);
+            //List<SqlParameter> Query = new List<SqlParameter>();
+            //string Sql = "select * from [hello].[dbo].[Reservation] where ";
+            IEnumerable<Reservation> model = _ReservationsRep.Table;
 
-            string Sql = "select * from [dto].[hello].Reservations where @Name";
-            //var model = _dbContext.SqlQuery<Reservation>();
+            if (!string.IsNullOrEmpty(query.Name))
+            {
+                model = model.Where(c => c.Name == query.Name);
+                //SqlParameter Qname = new SqlParameter("@Name", query.Name);
+                //Query.Add(Qname);
+
+                //Sql += " Name = @Name ";
+            }
+            if (!string.IsNullOrEmpty(query.Location))
+            {
+                model = model.Where(c => c.Location == query.Location);
+                //SqlParameter Qlocation = new SqlParameter("@Location", query.Location);
+                //Query.Add(Qlocation);
+
+                //Sql += " and Location = @Location ";
+            }
+            if (query.StartDate != Convert.ToDateTime("0001/1/1 0:00:00") && query.EndDate != Convert.ToDateTime("0001/1/1 0:00:00"))
+            {
+                model = model.Where(c => c.CreateTime > query.StartDate);
+                model = model.Where(c => c.CreateTime < query.EndDate);
+                //SqlParameter QstartDate = new SqlParameter("@StartDate", query.StartDate);
+                //SqlParameter QendDate = new SqlParameter("@EndDate", query.EndDate);
+                //Query.Add(QstartDate);
+                //Query.Add(QendDate);
+
+                //Sql += " and CreateTime Between @StartDate and @ EndDate ";
+            }
+            else if (query.StartDate != Convert.ToDateTime("0001/1/1 0:00:00") && query.EndDate == Convert.ToDateTime("0001/1/1 0:00:00"))
+            {
+                model = model.Where(c => c.CreateTime > query.StartDate);
+                //SqlParameter QstartDate = new SqlParameter("@StartDate", query.StartDate);
+                //Query.Add(QstartDate);
+
+                //Sql += " and CreateTime > @StartDate ";
+            }
+            else if (query.StartDate == Convert.ToDateTime("0001/1/1 0:00:00") && query.EndDate != Convert.ToDateTime("0001/1/1 0:00:00"))
+            {
+                model = model.Where(c => c.CreateTime < query.EndDate);
+                //SqlParameter QendDate = new SqlParameter("@EndDate", query.EndDate);
+                //Query.Add(QendDate);
+
+                //Sql += " and CreateTime < @EndDate ";
+            }
+
+            //var model = _dbContext.SqlQuery<Reservation>(Sql, Query);
+            List<ReservationViewModel> Model = new List<ReservationViewModel>();
+
+            foreach (var item in model)
+            {
+                var ii = new ReservationViewModel();
+
+                ii.Id = item.Id;
+                ii.Name = item.Name;
+                ii.Location = item.Location;
+                ii.rowGuid = item.rowGuid;
+                ii.CreateTime = item.CreateTime;
+                Model.Add(ii);
+            }
+
+            PagedList<ReservationViewModel> list = new PagedList<ReservationViewModel>(Model, query.PageNum, query.PageIndex);
+            var List = list.ToViewList();
+            return List;
+
         }
     }
 }

@@ -1,0 +1,92 @@
+﻿@model Data.ViewModels.AdminViewModel.ArticleEditorViewModel
+
+
+
+@section StyleSheet {
+    <style>
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .control-label {
+            margin-bottom: 14px;
+            padding-left: 6px; 
+        }
+        .btn {
+            margin-right: 20px;
+        }
+        .dropdown {
+            margin-bottom: 20px;
+        }
+    </style>
+    }
+
+@section Scripts {
+    <script>
+        var Data = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model));
+
+        $(function () {
+            $.each(Data.Categorys, function (index, item) {
+                console.log(Data.Article.CategoryId)
+                if (Data.Article.CategoryId == item.Id) {
+                    $("#Categorys").append("<option value='" + item.Id + "-" + item.desc + "' selected>" + item.desc + "</option>")
+                }
+                $("#Categorys").append("<option value='" + item.Id + "-" + item.desc + "'>" + item.desc + "</option>")
+            })
+           
+        })
+
+        CKEDITOR.replace('bb');
+        CKEDITOR.instances['bb'].setData(Data.Article.body);
+
+        $('form').submit(function () {
+            var a = CKEDITOR.instances['bb'].getData();
+
+            $('#Article_body').val(a);
+            console.log($('#Article_body').val())
+        })
+        
+    </script>
+    
+        
+
+}
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        Article
+    </div>
+    <div class="panel-body">
+        @using (Html.BeginForm("Editor", "Admin", null, FormMethod.Post, new { @class = "col-xs-11" }))
+        {
+            <div class="form-group">
+                <label class="control-label" for="title">Title</label>
+                <div class="">
+                    @Html.TextBoxFor(c => c.Article.title, new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label" for="title">Author</label>
+                <div class="">
+                    @Html.TextBoxFor(c => c.Article.author, new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label" for="Categorys">Categorys</label>
+                @Html.DropDownListFor(c => c.Categorys, new List<SelectListItem>() { }, "--- 请选择 ---", new { @class="form-control" })
+            </div>
+            <div class="form-group">
+                <label class="control-label" for="title">Content</label>
+                <div class="">
+                    <textarea id="bb"></textarea>
+                    @Html.HiddenFor(c => c.Article.body, new { @class = "form-control" })
+                </div>
+            </div>
+            @Html.HiddenFor(c => c.Article.Id);
+            <button class="btn btn-primary">@Html.ActionLink(".", "Index", "Admin")Go Back</button>
+            <button class="btn btn-primary" onsubmit="">Save</button>
+        }
+    </div>
+</div>
+    
+    
+

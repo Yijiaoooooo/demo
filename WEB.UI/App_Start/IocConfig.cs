@@ -14,6 +14,8 @@ using Data.Respository;
 using Data.Context;
 using System.Web.Http;
 using BLL.ReservationS;
+using BLL.List;
+using BLL.Admin;
 
 namespace WEB.UI
 {
@@ -75,6 +77,10 @@ namespace WEB.UI
 
 
             builder.RegisterType<ReservationService>().As<IReservationService>().InstancePerHttpRequest();
+
+            builder.RegisterType<ListService>().As<ILists>().InstancePerHttpRequest();
+
+            builder.RegisterType<AdminService>().As<IAdminService>().InstancePerHttpRequest();
         }
     }
     

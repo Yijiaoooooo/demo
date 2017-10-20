@@ -8,7 +8,7 @@ using Data.Domain.Reservation;
 
 namespace WEB.UI.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
         private IRepository<Reservation> _res;
 
@@ -19,7 +19,7 @@ namespace WEB.UI.Controllers
         public ActionResult Index()
         {
             //var model = this._res.Table;
-            return View();
+            return View("Summary");
         }
         public ActionResult Add(Reservation e)
         {

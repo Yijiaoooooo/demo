@@ -65,9 +65,9 @@ namespace WEB.UI.Controllers
         }
 
         [Route("api/web/query")]
-        public void Query(queryViewModel req)
+        public JObject Query(queryViewModel req)
         {
-
+            return _reservationService.QueryReservation(req);
         }
     }
 }

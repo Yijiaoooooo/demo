@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Data.Domain;
 using Data.ViewModels.Reservation;
+using Data.ViewModels.Query;
+using Data.Domain.Reservation;
 using Newtonsoft.Json.Linq;
 
 namespace BLL.ReservationS
@@ -22,6 +24,8 @@ namespace BLL.ReservationS
         void DeleteReservations(List<int> ids);
 
         void UpdateReservation(ReservationViewModel entity);
-        
+        JObject QueryReservation(queryViewModel query);
+
+
     }
 }
