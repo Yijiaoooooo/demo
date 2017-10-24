@@ -21,16 +21,13 @@
 
         #content {
             background: #fff;
-            margin-top: 20px;
+            margin-left: 40px;
+            margin-right: 40px;
         }
         .n {
-            position: absolute;
-            top: 20px;
-            left: 236px;
+            width: 226px;
             height: 600px;
-            width: 220px;
             border-radius: 2px;
-            margin-right: 20px;
             background: #fff;
         }
         .n > ul {
@@ -71,13 +68,14 @@
         .n span {
           margin-right: 6px;
         }
+
     </style>
 </head>
 <body>
 
-    <div class="container">
+    <div class="container-fluid">
         <div class="row">
-            <div class="n">
+            <div class="n col-xs-2">
                 <div class="logo text-center">
                     <a><h4>A Pig Under The Moon</h4></a>
                     <a><span>YiJiaoooooo</span></a>
@@ -106,9 +104,14 @@
                 </ul>
 
             </div>
-            <main class="col-xs-10 col-xs-offset-1" id="content">
-                @RenderBody()
+            <main class="c col-xs-8" id="content">
+                <div class="row">
+                    @RenderBody()
+                </div>
             </main>
+            <div class="col-xs-2" style="background: #fff; height: 100vh; " >
+
+            </div>
         </div>
     </div>
     

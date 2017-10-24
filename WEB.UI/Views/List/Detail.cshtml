@@ -74,10 +74,10 @@
             this.UH = ko.observableArray();
 
             this.UpOrHate = function (item, event) {
-
+                console.log(item.Id);
                 for (var i = 0; i < self.UH().length; i++)
                 {
-                    if (item.id = self.UH()[i])
+                    if (item.Id === self.UH()[i])
                     {
                         $.Toast("Message", "你老已经发表过意见了", "warning");
                         return false;
@@ -123,7 +123,7 @@
         
     
     }
-<div class="row" id="ADetail">
+<div class="col-xs-8" id="ADetail">
     <div class="Article">
         <header class="text-center">
             <h1>@Model.Article.title</h1>
